@@ -1,0 +1,51 @@
+
+/home/kc klasorunde
+
+mkdir models
+
+cat> download_model.py
+from huggingface_hub import login, hf_hub_download
+
+# (ÖNERİ: Bu satırı KULLANMA, anahtarı kodda tutma. Ortam değişkeni/HF CLI kullan.)
+login("hugging face apikey")
+
+path = hf_hub_download(
+    repo_id="Qwen/Qwen2.5-3B-Instruct-GGUF",
+    filename="qwen2.5-3b-instruct-q4_k_m.gguf",
+    local_dir="/home/kc/models",
+    local_dir_use_symlinks=False  # gerçek kopya istersen
+)
+print("ok:", path)
+
+python3 download_model.py
+
+
+docker container run --name rag-llm  -d --rm -p 8081:8080 \
+-v /home/kc/models/qwen2.5-3b-instruct-q4_k_m.gguf:/model \
+iverly/llamafile-docker:latest
+
+docker container ls 
+
+docker container stop rag-llm
+
+docker container prune
+
+cd models
+
+cat > Dockerfile
+
+FROM iverly/llamafile-docker:latest
+
+# Set the working directory (optional but good practice)
+WORKDIR /app
+
+# Copy the model file into the image.
+# The base image looks for the model in the /model directory.
+COPY qwen2.5-3b-instruct-q4_k_m.gguf /model
+
+# Expose the port where the application will run
+EXPOSE 8080
+
+docker build -t qwen2.5-llamafile:latest .
+
+docker container run --name my-rag-llm -d --rm -p 8081:8080 qwen2.5-llamafile:latest

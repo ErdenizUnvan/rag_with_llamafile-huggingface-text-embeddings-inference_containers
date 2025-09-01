@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 # Senin endpoint bilgilerin
 llm = ChatOpenAI(
     model="local",
-    api_key="x",   # dummy key, server kontrol etmiyorsa "x" yeterli
+    api_key="x",   
     base_url="http://10.1.100.45:8081/v1",
     temperature=0,
     max_tokens=512,
